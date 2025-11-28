@@ -1,5 +1,6 @@
 package com.finguard.sdk.crypto
 
+import com.finguard.sdk.core.Base64Compat
 import java.nio.ByteBuffer
 import java.security.SecureRandom
 import javax.crypto.Cipher

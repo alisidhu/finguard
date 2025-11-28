@@ -2,6 +2,7 @@ package com.finguard.sdk.auth
 
 import com.finguard.sdk.core.AuthCredentials
 import com.finguard.sdk.core.AuthSession
+import com.finguard.sdk.core.Base64Compat
 import java.security.SecureRandom
 import kotlin.math.max
 

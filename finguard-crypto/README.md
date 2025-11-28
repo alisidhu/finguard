@@ -71,7 +71,7 @@ Internals:
 - `KeystoreManager` — implements `KeyResolver`, alias-based get/create/delete/exists, StrongBox optional.
 - `AESManager` — AES-GCM, payload packing/unpacking, PBKDF2 helpers, salt generation.
 - `CryptoPayload` — versioned IV + ciphertext structure.
-- `Base64Compat` — Android/JVM-safe Base64.
+- `Base64Compat` — Android/JVM-safe Base64 (shared from core).
 - Exceptions: `KeyUnavailableException`, `EncryptionFailedException`, `DecryptionFailedException`.
 
 ## Key management
