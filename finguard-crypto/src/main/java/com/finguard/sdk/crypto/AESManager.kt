@@ -1,6 +1,5 @@
 package com.finguard.sdk.crypto
 
-import android.util.Base64
 import java.nio.ByteBuffer
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -42,7 +41,7 @@ internal class AESManager(
                 throw EncryptionFailedException("AES-GCM encryption failed", ex)
             }
         val packed = pack(PAYLOAD_VERSION, iv, cipherText)
-        return Base64.encode(packed, Base64.NO_WRAP)
+        return Base64Compat.encode(packed)
     }
 
     fun decrypt(
@@ -52,7 +51,7 @@ internal class AESManager(
         if (payload.isEmpty()) throw DecryptionFailedException("Empty payload")
         val decoded =
             try {
-                Base64.decode(payload, Base64.NO_WRAP)
+                Base64Compat.decode(payload)
             } catch (ex: IllegalArgumentException) {
                 throw DecryptionFailedException("Invalid base64 payload", ex)
             }

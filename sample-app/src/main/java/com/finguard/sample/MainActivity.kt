@@ -12,14 +12,15 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val client = FinGuardBuilder().config {
-                    environment(
-                        mode = EnvironmentMode.DEBUG,
-                        strictChecks = false,
-                        allowDebugLogs = true,
-                    )
-                    logging(level = LogLevel.DEBUG, enableSensitiveLogging = false)
-                }
+        val client =
+            FinGuardBuilder().config {
+                environment(
+                    mode = EnvironmentMode.DEBUG,
+                    strictChecks = false,
+                    allowDebugLogs = true,
+                )
+                logging(level = LogLevel.DEBUG, enableSensitiveLogging = false)
+            }
                 .withCrypto()
                 .build()
 
