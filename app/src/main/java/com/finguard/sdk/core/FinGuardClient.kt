@@ -24,7 +24,7 @@ class FinGuardClient internal constructor(
         clazz: Class<T>,
         moduleName: String,
     ): T {
-        val instance = services[clazz] as? T
+        val instance = services[clazz]?.let { clazz.cast(it) }
         return instance ?: throw FinGuardException(FinGuardError.ModuleNotInstalled(moduleName))
     }
 }
