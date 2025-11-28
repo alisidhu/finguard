@@ -18,7 +18,7 @@ implementation("io.github.alisidhu.finguard:core:1.0.0")
 implementation("io.github.alisidhu.finguard:crypto:1.0.0")
 ```
 
-## Usage (builder style)
+## Usage (Kotlin — builder style)
 ```kotlin
 val client = FinGuardBuilder()
     .config { environment(EnvironmentMode.RELEASE) }
@@ -32,6 +32,34 @@ val client = FinGuardBuilder()
 
 val cipherText = client.crypto().encrypt("secret-token".toByteArray())
 val plainText = client.crypto().decrypt(cipherText)
+```
+
+## Usage (factory — Kotlin or Java friendly)
+```kotlin
+val crypto = CryptoInstaller.create(
+    config = CryptoConfig(
+        keyAlias = "finguard-main",
+        keySize = 256,
+        pbkdfIterations = 150_000,
+    ),
+    logging = LoggingConfig(level = LogLevel.INFO),
+    requireStrongBox = false,
+)
+
+val cipher = crypto.encrypt("secret-token".toByteArray())
+val plain = crypto.decrypt(cipher)
+```
+
+### Java sample
+```java
+CryptoService crypto = CryptoInstaller.create(
+    new CryptoConfig("finguard-main", 256, 150_000),
+    new LoggingConfig(LogLevel.INFO, false, new FinGuardLogger.Console(LogLevel.INFO)),
+    false
+);
+
+byte[] cipher = crypto.encrypt("secret-token".getBytes(StandardCharsets.UTF_8));
+byte[] plain = crypto.decrypt(cipher);
 ```
 
 ## API at a glance
