@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
 }
 
 android {
@@ -33,9 +34,16 @@ android {
         warningsAsErrors = true
         disable.addAll(listOf("GradleDependency", "NewerVersionAvailable"))
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.6.11"
+    }
 }
 
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
     implementation(project(":finguard-core"))
     implementation(project(":finguard-crypto"))
     implementation(project(":finguard-storage"))
@@ -45,6 +53,15 @@ dependencies {
     implementation(project(":finguard-logging"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

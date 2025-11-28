@@ -35,6 +35,8 @@ android {
 
 dependencies {
     implementation(project(":finguard-core"))
+    implementation(project(":finguard-crypto"))
+    implementation(project(":finguard-storage"))
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
