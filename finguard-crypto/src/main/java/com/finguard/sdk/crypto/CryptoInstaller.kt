@@ -11,9 +11,17 @@ private const val DEFAULT_KEY_ALIAS = "FinGuard.AES.Main"
 fun FinGuardBuilder.withCrypto(
     keyAlias: String = DEFAULT_KEY_ALIAS,
     requireStrongBox: Boolean = false,
+    keySize: Int = 256,
+    pbkdfIterations: Int = 120_000,
 ): FinGuardBuilder =
     withService(CryptoService::class.java) { config ->
-        val keystore = KeystoreManager(keyAlias = keyAlias, requireStrongBox = requireStrongBox)
-        val aesManager = AESManager(keystore)
-        CryptoServiceImpl(aesManager, config.logging)
+        val cryptoConfig =
+            CryptoConfig(
+                keyAlias = keyAlias,
+                keySize = keySize,
+                pbkdfIterations = pbkdfIterations,
+            )
+        val keystore = KeystoreManager(requireStrongBox = requireStrongBox, keySize = keySize)
+        val aesManager = AESManager(keyResolver = keystore, config = cryptoConfig)
+        CryptoServiceImpl(aesManager, config.logging, cryptoConfig)
     }

@@ -8,32 +8,37 @@ import java.security.KeyStore
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
-internal interface KeyResolver {
-    fun getOrCreate(): SecretKey
-
-    fun rotate(): SecretKey
-}
-
 internal class KeystoreManager(
-    private val keyAlias: String,
     private val requireStrongBox: Boolean = false,
+    private val keySize: Int = 256,
 ) : KeyResolver {
     private val keyStore: KeyStore =
         KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
+    private val lock = Any()
 
-    override fun getOrCreate(): SecretKey {
-        val existing = keyStore.getEntry(keyAlias, null) as? KeyStore.SecretKeyEntry
-        if (existing != null) return existing.secretKey
-        return generateKey()
+    override fun getOrCreateKey(alias: String): SecretKey =
+        synchronized(lock) {
+            val existing = keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry
+            if (existing != null) return@synchronized existing.secretKey
+            generateKey(alias)
+        }
+
+    override fun deleteKey(alias: String) {
+        synchronized(lock) {
+            runCatching { keyStore.deleteEntry(alias) }
+        }
     }
 
-    override fun rotate(): SecretKey {
-        deleteIfExists()
-        return generateKey()
+    override fun keyExists(alias: String): Boolean =
+        synchronized(lock) { keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry != null }
+
+    fun rotate(alias: String): SecretKey {
+        deleteKey(alias)
+        return getOrCreateKey(alias)
     }
 
-    fun isHardwareBacked(): Boolean {
-        val entry = keyStore.getEntry(keyAlias, null) as? KeyStore.SecretKeyEntry ?: return false
+    fun isHardwareBacked(alias: String): Boolean {
+        val entry = keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry ?: return false
         val keyInfo =
             entry.secretKey?.let { secretKey ->
                 val factory = javax.crypto.SecretKeyFactory.getInstance(secretKey.algorithm, ANDROID_KEY_STORE)
@@ -42,17 +47,17 @@ internal class KeystoreManager(
         return keyInfo?.isInsideSecureHardware == true
     }
 
-    private fun generateKey(): SecretKey {
+    private fun generateKey(alias: String): SecretKey {
         try {
             val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
             val builder =
                 KeyGenParameterSpec.Builder(
-                    keyAlias,
+                    alias,
                     KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
                 )
                     .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setKeySize(256)
+                    .setKeySize(keySize)
                     .setRandomizedEncryptionRequired(true)
                     .setUserAuthenticationRequired(false)
 
@@ -65,10 +70,6 @@ internal class KeystoreManager(
         } catch (ex: Exception) {
             throw KeyUnavailableException("Unable to generate keystore key", ex)
         }
-    }
-
-    private fun deleteIfExists() {
-        runCatching { keyStore.deleteEntry(keyAlias) }
     }
 
     companion object {

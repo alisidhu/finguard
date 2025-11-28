@@ -9,16 +9,23 @@ import javax.crypto.spec.SecretKeySpec
 private class InMemoryKeyResolver : KeyResolver {
     private var key: SecretKey = SecretKeySpec(ByteArray(32) { it.toByte() }, "AES")
 
-    override fun getOrCreate(): SecretKey = key
+    override fun getOrCreateKey(alias: String): SecretKey = key
 
-    override fun rotate(): SecretKey {
+    override fun deleteKey(alias: String) {
+        // no-op for in-memory
+    }
+
+    override fun keyExists(alias: String): Boolean = true
+
+    fun rotate(): SecretKey {
         key = SecretKeySpec(ByteArray(32) { (it + 1).toByte() }, "AES")
         return key
     }
 }
 
 class AESManagerTest {
-    private val aesManager = AESManager(InMemoryKeyResolver())
+    private val resolver = InMemoryKeyResolver()
+    private val aesManager = AESManager(resolver, CryptoConfig(keyAlias = "test-alias"))
 
     @Test
     fun `encrypt then decrypt returns original`() {

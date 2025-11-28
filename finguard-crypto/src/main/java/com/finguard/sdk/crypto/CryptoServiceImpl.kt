@@ -7,6 +7,7 @@ import com.finguard.sdk.core.LoggingConfig
 internal class CryptoServiceImpl(
     private val aesManager: AESManager,
     private val logging: LoggingConfig,
+    private val config: CryptoConfig,
 ) : CryptoService {
     override fun encrypt(input: ByteArray): ByteArray {
         val cipher = aesManager.encrypt(input)

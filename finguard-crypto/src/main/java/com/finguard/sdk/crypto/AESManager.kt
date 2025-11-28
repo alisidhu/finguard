@@ -16,6 +16,7 @@ private const val PAYLOAD_VERSION: Byte = 1
 
 internal class AESManager(
     private val keyResolver: KeyResolver,
+    private val config: CryptoConfig = CryptoConfig(),
     private val random: SecureRandom = SecureRandom(),
 ) {
     fun encrypt(
@@ -25,7 +26,7 @@ internal class AESManager(
         if (plain.isEmpty()) throw EncryptionFailedException("Empty payload not allowed")
         val secretKey =
             try {
-                keyResolver.getOrCreate()
+                keyResolver.getOrCreateKey(config.keyAlias)
             } catch (ex: Exception) {
                 throw KeyUnavailableException("Encryption key unavailable", ex)
             }
@@ -40,7 +41,8 @@ internal class AESManager(
             } catch (ex: Exception) {
                 throw EncryptionFailedException("AES-GCM encryption failed", ex)
             }
-        val packed = pack(PAYLOAD_VERSION, iv, cipherText)
+        val payload = CryptoPayload(version = PAYLOAD_VERSION, iv = iv, cipherText = cipherText)
+        val packed = pack(payload)
         return Base64Compat.encode(packed)
     }
 
@@ -61,7 +63,7 @@ internal class AESManager(
 
         val secretKey =
             try {
-                keyResolver.getOrCreate()
+                keyResolver.getOrCreateKey(config.keyAlias)
             } catch (ex: Exception) {
                 throw KeyUnavailableException("Decryption key unavailable", ex)
             }
@@ -76,13 +78,16 @@ internal class AESManager(
         }
     }
 
-    fun rotateKey(): SecretKey = keyResolver.rotate()
+    fun rotateKey(): SecretKey {
+        keyResolver.deleteKey(config.keyAlias)
+        return keyResolver.getOrCreateKey(config.keyAlias)
+    }
 
     fun deriveKeyFromPassword(
         password: CharArray,
         salt: ByteArray,
-        iterations: Int = 150_000,
-        keyLengthBits: Int = 256,
+        iterations: Int = config.pbkdfIterations,
+        keyLengthBits: Int = config.keySize,
     ): SecretKey {
         require(password.isNotEmpty()) { "Password must not be empty" }
         require(salt.size >= 16) { "Salt must be at least 128 bits" }
@@ -103,16 +108,12 @@ internal class AESManager(
         return ByteArray(lengthBytes).also { random.nextBytes(it) }
     }
 
-    private fun pack(
-        version: Byte,
-        iv: ByteArray,
-        cipherText: ByteArray,
-    ): ByteArray {
-        val buffer = ByteBuffer.allocate(1 + 1 + iv.size + cipherText.size)
-        buffer.put(version)
-        buffer.put(iv.size.toByte())
-        buffer.put(iv)
-        buffer.put(cipherText)
+    private fun pack(payload: CryptoPayload): ByteArray {
+        val buffer = ByteBuffer.allocate(1 + 1 + payload.iv.size + payload.cipherText.size)
+        buffer.put(payload.version)
+        buffer.put(payload.iv.size.toByte())
+        buffer.put(payload.iv)
+        buffer.put(payload.cipherText)
         return buffer.array()
     }
 
