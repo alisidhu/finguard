@@ -13,3 +13,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+/ROADMAP.md
+/finguard-crypto/build/
+/finguard-demo/build/
+/finguard-device/build/
+/finguard-logging/build/
+/finguard-network/build/
+/finguard-storage/build/
+/sample-app/build/

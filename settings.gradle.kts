@@ -20,5 +20,15 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "FinguardSdk"
-include(":app")
- 
+
+include(":finguard-core")
+project(":finguard-core").projectDir = file("app")
+
+include(":finguard-crypto")
+include(":finguard-storage")
+include(":finguard-network")
+include(":finguard-auth")
+include(":finguard-device")
+include(":finguard-logging")
+include(":finguard-demo")
+include(":sample-app")

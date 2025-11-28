@@ -1,0 +1,3 @@
+<resources>
+    <style name="Theme.FinGuard.Sample" parent="@android:style/Theme.Material.Light.NoActionBar" />
+</resources>
