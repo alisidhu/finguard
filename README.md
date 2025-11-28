@@ -2,6 +2,9 @@
 
 Enterprise-grade Android security SDK for fintech and banking applications.
 
+
+# [![](https://jitpack.io/v/alisidhu/finguard.svg)](https://jitpack.io/#alisidhu/finguard)
+
 ---
 
 ## Why FinGuard?
@@ -26,13 +29,8 @@ FinGuard is designed to help Android developers build secure, production-ready f
 Pick only the modules you need:
 
 ```kotlin
-implementation("io.github.alisidhu.finguard:core:1.0.0")      // required
-implementation("io.github.alisidhu.finguard:crypto:1.0.0")    // optional
-implementation("io.github.alisidhu.finguard:storage:1.0.0")   // optional
-implementation("io.github.alisidhu.finguard:network:1.0.0")   // optional
-implementation("io.github.alisidhu.finguard:auth:1.0.0")      // optional
-implementation("io.github.alisidhu.finguard:device:1.0.0")    // optional
-implementation("io.github.alisidhu.finguard:logging:1.0.0")   // optional
+implementation("com.github.alisidhu:finguard:latest.release")
+
 ```
 
 Quick start:
